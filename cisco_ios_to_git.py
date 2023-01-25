@@ -19,14 +19,14 @@ def main(argv):
     for opt, arg in opts:
         if opt in ('-h', '--help'):
             print('Cisco IOS Config Script')
-            print('-h Print this help menu')
-            print('-d <devicetype>')
-            print('-i <ipaddress>')
-            print('-u <username>')
-            print('-p <password>')
-            print('-g <gituser>')
-            print('-r <gitrepo>')
-            print('-c <commit>')
+            print('-h Print this help menu\n\t--help')
+            print('-d "<devicetype>"\n\t--devicetype="<devicetype>"')
+            print('-i "<ipaddress>"\n\t--ipaddress="<ipaddres>"')
+            print('-u "<username>"\n\t--username="<username>"')
+            print('-p  "<password>"\n\t--password="<password>"')
+            print('-g "<gituser>"\n\t--gituser="<gituser>"')
+            print('-r "<gitrepo>"\n\t--gitrepo="<gitrepo>"')
+            print('-c "<commit>"\n\t--commit="<commit>"')
             sys.exit()
         elif opt in ('-d', '--devicetype'):
             device_type = arg
