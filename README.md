@@ -8,6 +8,7 @@ This modified script also requires using SSH with git.
 
 ## Arguments
 
+```
 -h Print this help menu
     --help
 -d '<devicetype>'
@@ -24,3 +25,4 @@ This modified script also requires using SSH with git.
     --gitrepo='<gitrepo>'
 -c '<commit>'
     --commit='<commit>'
+```
