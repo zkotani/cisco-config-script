@@ -11,6 +11,8 @@ This modified script also requires using SSH with git.
 ```
 -h Print this help menu
     --help
+-n '<devicename>'
+    --devicename='<devicename>'
 -d '<devicetype>'
     --devicetype='<devicetype>'
 -i '<ipaddress>'

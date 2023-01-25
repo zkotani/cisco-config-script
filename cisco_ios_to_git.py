@@ -4,6 +4,7 @@ import subprocess
 from netmiko import ConnectHandler
 
 def main(argv):
+    device_name = ''
     device_type = ''
     ip_address = ''
     username = ''
@@ -13,13 +14,15 @@ def main(argv):
     commit = ''
 
     opts, args = \
-        getopt.getopt(argv,'hd:i:u:p:g:r:c:', \
-            ['help','devicetype=','ipaddress=','username=','password=',
+        getopt.getopt(argv,'hn:d:i:u:p:g:r:c:', \
+            ['help','devicename=','devicetype=','ipaddress=',
+            'username=','password=',
             'gituser=','gitrepo=','commit='])
     for opt, arg in opts:
         if opt in ('-h', '--help'):
             print('Cisco IOS Config Script')
             print('-h Print this help menu\n\t--help')
+            print('-n "<devicename>"\n\t--devicename="<devicename>"')
             print('-d "<devicetype>"\n\t--devicetype="<devicetype>"')
             print('-i "<ipaddress>"\n\t--ipaddress="<ipaddres>"')
             print('-u "<username>"\n\t--username="<username>"')
@@ -28,6 +31,8 @@ def main(argv):
             print('-r "<gitrepo>"\n\t--gitrepo="<gitrepo>"')
             print('-c "<commit>"\n\t--commit="<commit>"')
             sys.exit()
+        elif opt in ('-n', '--devicename'):
+            device_name = arg
         elif opt in ('-d', '--devicetype'):
             device_type = arg
         elif opt in ('-i', '--ipaddress'):
@@ -75,11 +80,11 @@ def main(argv):
 
     # Clone Git Repo
     subprocess.call(
-        f'cd {temporary_folder.name} && git clone {git_repo_url} . && rm *.*', shell=True
+        f'cd {temporary_folder.name} && git clone {git_repo_url} . && rm {device_name}.*', shell=True
     )
 
     # Write all config to file
-    with open(f"{temporary_folder.name}/{device['host']}_config.txt", 'w', encoding='utf-8') \
+    with open(f"{temporary_folder.name}/{device_name}_config.txt", 'w', encoding='utf-8') \
         as outfile:
         outfile.write(device_config)
 
