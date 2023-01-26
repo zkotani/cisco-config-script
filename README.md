@@ -28,3 +28,7 @@ This modified script also requires using SSH with git.
 -c '<commit>'
     --commit='<commit>'
 ```
+
+## In Progress
+
+Currently developing a script to write configurations to a Cisco IOS device. First will utilize a serial connection but planning on expanding to allow for using SSH for devices which have SSH enabled.
