@@ -1,6 +1,3 @@
-import sys, getopt
-import tempfile
-import subprocess
 import serial
 
 with open('DLS1_config.txt', 'r', encoding='utf-8') as sw_config:
