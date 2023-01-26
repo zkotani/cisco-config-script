@@ -65,10 +65,23 @@ def help_menu():
     Stores the help menu text
     '''
 
-    menu = '''Cisco IOS to git repo tool.
+    menu = '''
+    Cisco IOS to git repo tool.
+
     Usage: python3 cisco_ios_to_git.py [options]
     
-    Options:'''
+    Options:
+    
+    -h,--help=          Print this menu and exit.
+    -n,--name=          Specify the name of the device to be used in <name>_config.txt
+    -d,--devicetype     The type of device being connected to. Default is 'cisco_ios'.
+    -i,--ip=            The IP address of the device you wish to connect to.
+    -u,--user=          The username used to initiate the SSH connection.
+    -p,--pass=          The above user's password.
+    -g,--gituser=       The username belonging to the owner of the repo you would like to save the configuration to.
+    -r,--gitrepo=       The repository you would like to save the configuration to.
+    -c,--commit=        The commit message you would like to use. Wrap multi-word commit messages in single or double quotes.
+    '''
 
     return menu
 
@@ -85,9 +98,9 @@ def main(argv):
     # Device connection details
     device = {
         'device_type': 'cisco_ios',
-        'host': '0.0.0.0',
-        'username': 'username',
-        'password': 'password'
+        'host': '',
+        'username': '',
+        'password': ''
     }
 
     commit_message = ''
@@ -96,14 +109,18 @@ def main(argv):
     device_name = ''
 
     # Reads given command-line arguments
-    opts, args = getopt.getopt(argv,'hn:d:i:u:p:g:r:c:',
-            ['help',
-            'name=',
-            'device=',
-            'ip=',
-            'user=','pass=',
-            'gituser=','gitrepo=',
-            'commit='])
+    try:
+        opts, args = getopt.getopt(argv,'hn:d:i:u:p:g:r:c:',
+                ['help',
+                'name=',
+                'device=',
+                'ip=',
+                'user=','pass=',
+                'gituser=','gitrepo=',
+                'commit='])
+    except getopt.GetoptError:
+        print('That is not a recognized option. Please use -h or --help to see a list of avilable options.')
+        sys.exit(2)
     for opt, arg in opts:
         if opt in ('-h', '--help', ''):
             print(help_menu())
@@ -124,8 +141,9 @@ def main(argv):
             git_repo = arg
         elif opt in ('-c', '--commit'):
             commit_message = arg
-        else:
-            sys.exit()
+    if not opts:
+        print('No options were given. Please use -h or --help to see a list of available options.')
+        sys.exit()
 
     device_connect(commit_message,
                     device, device_name,
