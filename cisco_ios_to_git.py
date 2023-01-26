@@ -38,8 +38,7 @@ def device_connect(commit_message,
 
     # Clone Git Repo
     subprocess.call(
-        f'git clone git@github.com:{git_user}/{git_repo}.git . && rm {device_name}.*',
-        shell=True
+        f'cd {temporary_folder.name} && git clone {git_repo_url} . && rm {device_name}_config.*', shell=True
     )
 
     # Write all config to file
