@@ -33,13 +33,15 @@ def device_connect(commit_message,
     temporary_folder = tempfile.TemporaryDirectory()
     subprocess.call(
         f'cd {temporary_folder.name}',
-        shell=True
-    )
+        shell=True)
 
     # Clone Git Repo
     subprocess.call(
-        f'cd {temporary_folder.name} && git clone {git_repo_url} . && rm {device_name}_config.*', shell=True
-    )
+        f'cd {temporary_folder.name} && git clone git@github.com:{git_user}/{git_repo}.git .',
+        shell=True)
+    subprocess.call(
+        f'rm {device_name}_config.*',
+        shell=True)
 
     # Write all config to file
     with open(f"{temporary_folder.name}/{device_name}_config.txt", 'w', encoding='utf-8') \
@@ -49,12 +51,10 @@ def device_connect(commit_message,
     # Git commit all changes
     subprocess.call(
         f"cd {temporary_folder.name} && git add -A",
-        shell=True
-    )
+        shell=True)
     subprocess.call(
         f"git commit -a -m '{commit_message}' && git push",
-        shell=True
-    )
+        shell=True)
 
     # Delete temporary directory
     temporary_folder.cleanup()
@@ -88,11 +88,7 @@ def help_menu():
 def main(argv):
 
     '''
-    Takes in command line options and connects to given Cisco IOS device.
-    Copies the running configuration to a variable.
-    Creates a temporary directory and clones the given git repo.
-    Writes the configuration to the given device name's file.
-    Pushes the git repo with the given commit message.
+    Takes in command line options and passes the commands to the device connection function.
     '''
 
     # Device connection details
@@ -119,7 +115,7 @@ def main(argv):
                 'gituser=','gitrepo=',
                 'commit='])
     except getopt.GetoptError:
-        print('That is not a recognized option. Please use -h or --help to see a list of avilable options.')
+        print('That is not a recognized option. Please use -h or --help available options.')
         sys.exit(2)
     for opt, arg in opts:
         if opt in ('-h', '--help', ''):

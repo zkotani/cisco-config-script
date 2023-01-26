@@ -1,34 +1,41 @@
 # Cisco Config Script
 
-## Introduction
-
 This takes the existing script from GShuttleworth (https://github.com/GShuttleworth/Cisco-IOS-XE-config-to-Git) and expands on it to take command line arguments. This allows for backing up multiple switches simply and without rewriting the script between running the program.
 
 This modified script also requires using SSH with git.
 
-## Arguments
+## Copying Configuration to Git Repo
 
 ```
--h Print this help menu
-    --help
--n '<devicename>'
-    --devicename='<devicename>'
--d '<devicetype>'
-    --devicetype='<devicetype>'
--i '<ipaddress>'
-    --ipaddress='<ipaddres>'
--u '<username>'
-    --username='<username>'
--p  '<password>'
-    --password='<password>'
--g '<gituser>'
-    --gituser='<gituser>'
--r '<gitrepo>'
-    --gitrepo='<gitrepo>'
--c '<commit>'
-    --commit='<commit>'
+Cisco IOS to git repo tool.
+
+    Usage: python3 cisco_ios_to_git.py [options]
+    
+    Options:
+    
+    -h,--help=          Print this menu and exit.
+    -n,--name=          Specify the name of the device to be used in <name>_config.txt
+    -d,--devicetype     The type of device being connected to. Default is 'cisco_ios'.
+    -i,--ip=            The IP address of the device you wish to connect to.
+    -u,--user=          The username used to initiate the SSH connection.
+    -p,--pass=          The above user's password.
+    -g,--gituser=       The username belonging to the owner of the repo you would like to save the configuration to.
+    -r,--gitrepo=       The repository you would like to save the configuration to.
+    -c,--commit=        The commit message you would like to use. Wrap multi-word commit messages in single or double quotes.
 ```
 
-## In Progress
+## Copying Configuration from Git Repo
 
-Currently developing a script to write configurations to a Cisco IOS device. First will utilize a serial connection but planning on expanding to allow for using SSH for devices which have SSH enabled.
+```
+Git repo to Cisco IOS tool.
+
+    Usage: python3 git_to_cisco_ios.py [options]
+    
+    Options:
+    
+    -h,--help=          Print this menu and exit.
+    -n,--name=          Specify the name of the device to be used in <name>_config.txt
+    -t,--tty=           The name of the device being used for the serial connection. (e.g. ttyUSB0)
+    -g,--gituser=       The username belonging to the owner of the repo you would like to copy the configuration from.
+    -r,--gitrepo=       The repository you would like to copy the configuration from.
+```
