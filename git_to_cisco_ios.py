@@ -39,7 +39,7 @@ def device_connect(device_name, git_repo, git_user, tty_name, serial_or_ssh, dev
             conf_lines = sw_config.read()
         conf_list = conf_lines.split('\n')
 
-        ser = serial.Serial(f'/dev/{tty_name}')
+        ser = serial.Serial(f'{tty_name}')
         ser.write(b'enable\r\nconfigure terminal\r\n')
         for line in conf_list:
             line_b = line.encode()
@@ -66,7 +66,7 @@ def help_menu():
     
     Options:
     
-    -h  Print this menu and exit.
+    -h  Print this menu and exit. 
     -n  Specify the name of the device to be used in <name>_config.txt
     -g  The username belonging to the owner of the repo you would like to copy the configuration from.
     -r  The repository you would like to copy the configuration from.
@@ -124,7 +124,6 @@ def main(argv):
                         new_opts = ['-i', '-u', '-p']
                         for i in new_opts:
                             mandatory_options.append(i)
-
 
         if not opts:
             print('No options were given. Please use -h to see a list of available options.')
