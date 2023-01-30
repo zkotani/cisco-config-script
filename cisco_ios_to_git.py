@@ -1,5 +1,8 @@
 "Copy Cisco IOS configs to git repo."
 
+# https://stackoverflow.com/questions/16077912/
+    #  python-serial-how-to-use-the-read-or-readline-function-to-read-more-than-1-char
+
 import getopt
 import io
 import tempfile
@@ -37,7 +40,6 @@ def device_connect(commit_message, device, device_name, git_repo, git_user, seri
         print(x)
         print(x == str("hello"))
         sys.exit()
-
 
     # Create temporary directory and change into it
     temporary_folder = tempfile.TemporaryDirectory()
