@@ -1,15 +1,20 @@
 "Copy Cisco IOS configs to git repo."
 
+# https://stackoverflow.com/questions/16077912/
+    #  python-serial-how-to-use-the-read-or-readline-function-to-read-more-than-1-char
+
 import getopt
+import io
 import tempfile
 import subprocess
 import sys
 from netmiko import ConnectHandler
+import serial
 
 class MissingMandatoryOpt(Exception):
     "Raised when one or more mandatory options is missing"
 
-def device_connect(commit_message, device, device_name, git_repo, git_user):
+def device_connect(commit_message, device, device_name, git_repo, git_user, serial_or_ssh, tty_name):
 
     '''
     Connect to device and get device config.
@@ -17,14 +22,24 @@ def device_connect(commit_message, device, device_name, git_repo, git_user):
     Replace files with new config file and push changes back to git repo.
     '''
 
-    # Connect to device
-    net_connect = ConnectHandler(**device)
+    if serial_or_ssh in 'ssh':
+        # Connect to device
+        net_connect = ConnectHandler(**device)
 
-    # Run show command on device
-    device_config = net_connect.send_command('show run')
+        # Run show command on device
+        device_config = net_connect.send_command('show run')
 
-    # Disconnect from Device
-    net_connect.disconnect()
+        # Disconnect from Device
+        net_connect.disconnect()
+    elif serial_or_ssh == 'serial':
+        ser = serial.Serial(f'{tty_name}')
+        sio = io.TextIOWrapper(io.BufferedRWPair(ser, ser))
+        sio.write(str('echo "hello"\n'))
+        # sio.flush()
+        x = sio.readline()
+        print(x)
+        print(x == str("hello"))
+        sys.exit()
 
     # Create temporary directory and change into it
     temporary_folder = tempfile.TemporaryDirectory()
@@ -33,17 +48,25 @@ def device_connect(commit_message, device, device_name, git_repo, git_user):
     # Clone Git Repo
     subprocess.call(
         f'cd {temporary_folder.name} && git clone git@github.com:{git_user}/{git_repo}.git .',
-        shell=True)
-    subprocess.call(f'rm {device_name}_config.txt', shell=True)
+        shell=True
+    )
+    subprocess.call(f'rm {device_name}_config.*', shell=True)
 
     # Write all config to file
-    with open(\
-    f"{temporary_folder.name}/{device_name}_config.txt", 'w', encoding='utf-8') as outfile:
+    with open(
+        f"{temporary_folder.name}/{device_name}_config.txt", 'w', encoding='utf-8'
+    ) as outfile:
         outfile.write(device_config)
 
     # Git commit all changes
-    subprocess.call(f"cd {temporary_folder.name} && git add -A", shell=True)
-    subprocess.call(f"git commit -a -m '{commit_message}' && git push", shell=True)
+    subprocess.call(
+        f"cd {temporary_folder.name} && git add -A",
+        shell=True
+    )
+    subprocess.call(
+        f"git commit -a -m '{commit_message}' && git push",
+        shell=True
+    )
 
     # Delete temporary directory
     temporary_folder.cleanup()
@@ -61,13 +84,17 @@ def help_menu():
     
     -h  Print this menu and exit.
     -n  Specify the name of the device to be used in <name>_config.txt
-    -d  The type of device being connected to. Default is 'cisco_ios'.
-    -i  The IP address of the device you wish to connect to.
-    -u  The username used to initiate the SSH connection.
-    -p  The above user's password.
     -g  The username belonging to the owner of the repo you would like to save the configuration to.
     -r  The repository you would like to save the configuration to.
     -c  The commit message you would like to use. Wrap multi-word commit messages in single or double quotes.
+    -s  Declare whether you're using a serial or SSH connection (optional, default is ssh).
+        If using an SSH connection:
+            -d  The type of device being connected to. Default is 'cisco_ios' (Optional)
+            -i  The IP address of the device you wish to connect to.
+            -u  The username used to initiate the SSH connection.
+            -p  The above user's password.
+        If using a serial connection:
+            -t  The name of the device being used for the serial connection, e.g. ttyUSB0.
     '''
 
     return menu
@@ -88,18 +115,32 @@ def main(argv):
     git_repo = ''
     git_user = ''
     device_name = ''
-    mandatory_options = ['-n', '-d', '-i', '-u', '-p', '-g', '-r', '-c']
+    tty_name = ''
+    serial_or_ssh = 'ssh'
+    mandatory_options = ['-n', '-g', '-r', '-c']
     missing_options = []
 
     # Reads given command-line arguments
     # If mandatory options are missing or no options are given, exceptions are raised
     try:
-        opts, args = getopt.getopt(argv,'hn:d:i:u:p:g:r:c:',)
+        opts, args = getopt.getopt(argv,'hn:g:r:c:s:d:i:u:p:t:',)
 
         for opt, arg in opts:
             if opt in ('-h'):
                 print(help_menu())
                 sys.exit()
+            if opt in ('-s'):
+                if not arg.lower() in ('serial', 'ssh'):
+                    print('When using the -s option, enter either "serial" or "ssh".')
+                    sys.exit(2)
+                else:
+                    serial_or_ssh = arg.lower()
+                    if serial_or_ssh == 'serial':
+                        mandatory_options.append('-t')
+                    elif serial_or_ssh == 'ssh':
+                        new_opts = ['-i', '-u', '-p']
+                        for i in new_opts:
+                            mandatory_options.append(i)
 
         if not opts:
             print('No options were given. Please use -h to see a list of available options.')
@@ -138,8 +179,10 @@ def main(argv):
             git_repo = arg
         elif opt in ('-c'):
             commit_message = arg
+        elif opt in ('-t'):
+            tty_name = arg
 
-    device_connect(commit_message, device, device_name, git_repo, git_user)
+    device_connect(commit_message, device, device_name, git_repo, git_user, serial_or_ssh, tty_name)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
